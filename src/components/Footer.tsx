@@ -15,7 +15,7 @@ const Footer = () => {
       icon: Linkedin,
       label: "LinkedIn",
     },
-    { href: "mailto:pukarlamichhane567@gmail.com", icon: Mail, label: "Email" },
+    { href: "mailto:adhikarihemanta932@gmail.com", icon: Mail, label: "Email" },
     {
       href: "https://medium.com/@adhikarihemanta932",
       icon: SiMedium,
