@@ -60,8 +60,8 @@ const Footer = () => {
         </div>
 
         <div className="mt-8 pt-6 border-t border-border/20 text-center text-muted-foreground text-xs flex items-center justify-center gap-1">
-          <p>© {currentYear} Hemanta Adhikari. Made with</p>
-          <Heart className="w-3 h-3 text-destructive fill-destructive" />
+          <p>© {currentYear} Hemanta Adhikari</p>
+          {/* <Heart className="w-3 h-3 text-destructive fill-destructive" /> */}
         </div>
       </div>
     </footer>
