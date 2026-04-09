@@ -1,26 +1,63 @@
 import { Github, Linkedin, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState, useRef, useEffect } from "react";
 import { Typewriter } from "react-simple-typewriter";
 import { SiMedium } from "react-icons/si";
 import toast, { Toaster } from "react-hot-toast";
-import CV from "@/assets/Office Hemanta Adhikari.pdf";
-
+import CoverLetterGenerator from "@/common/coverLetter";
 
 const Scene3D = lazy(() => import("./Scene3D"));
 
 const Hero = () => {
-  const handleDownloadCV = () => {
-    const link = document.createElement("a");
-    link.href = CV;
-    link.download = "Hemanta_Adhikari_CV.pdf";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const [showCVList, setShowCVList] = useState(false);
+  const dropdownRef = useRef(null);
 
-    toast.success("CV downloaded successfully!");
+  const cvList = [
+    {
+      name: "Australia CV (PDF)",
+      file: "/assets/cv/Hemanta_Adhikari_Aus_CV.pdf",
+    },
+    {
+      name: "Australia CV (DOCX)",
+      file: "/assets/cv/Hemanta_Adhikari_Aus_CV.docx",
+    },
+    { name: "Office CV", file: "/assets/cv/Office Hemanta Adhikari.pdf" },
+    {
+      name: "University CV",
+      file: "/assets/cv/University CV Hemanta Adhikari.pdf",
+    },
+  ];
+
+  const handleDownload = async (file, name) => {
+    try {
+      const response = await fetch(file);
+      if (!response.ok) throw new Error("File not found");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      toast.success(`${name} downloaded!`);
+    } catch (err) {
+      toast.error("Failed to download CV");
+      console.error(err);
+    }
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowCVList(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <section
@@ -133,13 +170,44 @@ const Hero = () => {
                 </Button>
               </a>
 
-              <Button
-                size="lg"
-                onClick={handleDownloadCV}
-                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold rounded-xl px-8 h-12 text-base shadow-lg shadow-secondary/25 hover:shadow-xl hover:shadow-secondary/30 transition-all duration-300"
-              >
-                Download CV
-              </Button>
+              {/* ✅ CV Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-3 w-full">
+                  <Button
+                    size="lg"
+                    onClick={() => setShowCVList(!showCVList)}
+                    className="w-full sm:w-auto bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold rounded-xl px-6 sm:px-8 h-12 text-base shadow-lg shadow-secondary/25 hover:shadow-xl hover:shadow-secondary/30 transition-all duration-300"
+                  >
+                    Download CV
+                  </Button>
+
+                  {/* Cover Letter Generator */}
+                  <div className="w-full sm:w-auto">
+                    <CoverLetterGenerator />
+                  </div>
+                </div>
+
+                {showCVList && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute mt-2 w-64 bg-background border rounded-xl shadow-lg z-50 overflow-hidden"
+                  >
+                    {cvList.map((cv, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          handleDownload(cv.file, cv.name);
+                          setShowCVList(false);
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-primary/10 transition"
+                      >
+                        {cv.name}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </div>
             </motion.div>
           </motion.div>
 
@@ -156,7 +224,7 @@ const Hero = () => {
             <div className="flex items-center gap-2 text-muted-foreground">
               <Mail className="w-4 h-4 text-primary shrink-0" />
               <a
-                href="mailto:pukarlamichhane567@gmail.com"
+                href="mailto:adhikarihemanta932@gmail.com"
                 className="hover:text-primary transition-colors truncate"
               >
                 adhikarihemanta932@gmail.com
@@ -202,22 +270,6 @@ const Hero = () => {
               </a>
             ))}
           </motion.div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2, duration: 1 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2"
-        >
-          <span className="text-xs text-muted-foreground/60">Scroll</span>
-          <div className="w-6 h-10 rounded-full border-2 border-muted-foreground/30 flex justify-center pt-2">
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="w-1.5 h-1.5 rounded-full bg-primary"
-            />
-          </div>
         </motion.div>
       </div>
     </section>
